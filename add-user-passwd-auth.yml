@@ -1,0 +1,75 @@
+--- # install httpd server using ansible
+
+- hosts: 127.0.0.1
+  connection: local
+
+  vars:
+    user_name: javascript
+    group: django_developer
+
+  tasks:
+       - name: create a password for user {{user_name}}
+         shell: python -c 'import crypt,getpass; print(crypt.crypt(getpass.getpass(), crypt.mksalt(crypt.METHOD_SHA512)))'
+         register: password
+         
+
+       - name: set passsword
+         set_fact: passwd='{{password.stdout}}'
+
+       - name: set user {{user_name}} as a global variable
+         set_fact: user_name='{{user_name}}'
+
+       - name: set group {{group}} as a global variable
+         set_fact: group='{{group}}'
+
+       - debug:
+           msg: '{{passwd}}'
+           
+           
+
+- hosts: demo
+  user: ansadmin
+  become: yes
+  connection: ssh
+  gather_facts: yes
+          
+
+  tasks:
+     - name: set user {{hostvars['localhost']['user_name']}} as local scope
+       set_fact: user="{{hostvars['localhost']['user_name']}}"
+
+     - name: set group {{hostvars['localhost']['group']}} as local scope
+       set_fact: group="{{hostvars['localhost']['group']}}"
+
+     - debug: var=hostvars['localhost']['passwd']
+
+     - debug:
+         msg: "{{  hostvars['localhost']['passwd']  }}"
+    
+     - name:  Make sure we have a {{group}} group
+       group:
+          name: '{{group}}'
+          state: present
+
+     - name: Allow the group {{group}} to have passwordless sudo
+       lineinfile:
+          dest: /etc/sudoers            
+          state: present
+          regexp: '^%{{group}}'
+          # :ALL for root access , for specific action :/usr/bin/specific_action           
+          line: '%{{group}} ALL=(ALL) NOPASSWD: /usr/bin/systemctl'
+          validate: 'visudo -cf %s'
+
+     - name: Creating user {{user_name}} with admin access
+       user: 
+        name: '{{user}}'
+        password: "{{  hostvars['localhost']['passwd']  }}"
+        groups: '{{group}}'
+        state: present
+        shell: /bin/bash
+        system: yes
+        createhome: yes
+        home: /home/{{user}}
+       become: yes
+       become_method: "sudo"
+ 
