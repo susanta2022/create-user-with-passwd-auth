@@ -3,7 +3,19 @@
 add user and with a specific group using ansible playbook
 ## Installation
 1> [setup ansible server and node cluster with ansadmin sudo user using docker container or aws cloud](https://www.google.com)</br>
-2> install python3 using [sudo yum install python3 command]
+2> install python3 using [sudo yum install python3]</br>
+3> create user with proper user group to add-user-passwd-auth.yml like</br>
+```python
+- hosts: 127.0.0.1
+  connection: local
+
+  vars:
+  
+    user_name: username
+    group: user_group_name
+    
+  tasks:
+```
 
 ## Usage
 
