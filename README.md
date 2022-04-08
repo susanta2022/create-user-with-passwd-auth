@@ -10,6 +10,6 @@ add user and with a specific group using ansible playbook
 ```python
 susanta@server# ansible-playbook add-user-passwd-auth.yml
 password>>
-```</br>
+```
 type user password for password authentication
 
