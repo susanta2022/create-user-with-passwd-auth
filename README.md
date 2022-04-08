@@ -6,7 +6,7 @@ add user and with a specific group using ansible playbook
 2> install python3 using [sudo yum install python3 command]
 
 ## Usage
-```bash
+```python
 susanta@server# ansible-playbook add-user-passwd-auth.yml
 password>>
 ```
